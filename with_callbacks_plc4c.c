@@ -38,6 +38,7 @@ int main() {
   bool loop = true;
   plc4c_system_handle system_handle = 0;
   plc4c_connection_handle connection_handle = 0;
+  plc4c_connection_handle connection_handle2 = 0;
 
   error_code error = plc4c_system_create(&system_handle);
   if (error != OK) {
@@ -57,9 +58,13 @@ int main() {
     return -1;
   }
 
-  // Establish a connection to a remote device
+  // Establish a connection to remote devices
   // you may or may not care about the connection handle
   error = plc4c_system_connect(system_handle,"s7://192.168.42.20", &connection_handle);
+  if (error != OK) {
+    return -1;
+  }
+  error = plc4c_system_connect(system_handle,"s7://192.168.42.22", &connection_handle2);
   if (error != OK) {
     return -1;
   }
