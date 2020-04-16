@@ -78,6 +78,7 @@ int main() {
 
   // Make sure everything is cleaned up correctly.
   plc4c_system_shutdown(system_handle);
+  plc4c_system_destroy(system_handle);
 
   return 0;
 }
