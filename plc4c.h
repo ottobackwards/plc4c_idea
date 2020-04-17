@@ -25,12 +25,13 @@ extern "C" {
 #include <stdbool.h>
 
 
-  /**
-   * Public API
-   */
+/**
+ * Public API
+ */
 
-/*
-* PLC4C error codes
+/**
+ *
+ * PLC4C error codes
 */
 typedef enum error_code {
   OK,
@@ -48,27 +49,22 @@ typedef enum error_code {
  * @param err error code.
  * @return A human readable error description.
  */
-char* toErrorMessage(error_code err);
-
-
-/**
- * Handle to the plc4c system
- * plc4c systems contain:
- * - a configuration
- * - some number of drivers
- * - some number of connections
- */
-typedef unsigned int plc4c_system_handle;
+char *toErrorMessage(error_code err);
 
 /**
- * Handle to plc4c_driver
+ * the plc4c system
  */
-typedef unsigned int plc4c_driver_handle;
+typedef struct plc4c_system_t plc4c_system;
 
 /**
- * Handle to plc4c_connection
+ * the plc4c_driver
  */
-typedef unsigned int plc4c_connection_handle;
+typedef struct plc4c_driver_t plc4c_driver;
+
+/**
+ * the plc4c_connection
+ */
+typedef struct plc4c_connection_t plc4c_connection;
 
 /**
  * SYSTEM CALLBACKS
@@ -77,45 +73,57 @@ typedef unsigned int plc4c_connection_handle;
 /**
  * Function pointer for a callback called when a driver is loaded.
  * Set in plc4c_system @see plc4c_system_set_on_driver_loaded()
+ * @param driver 
  */
-typedef void (*plc4c_system_callback_on_driver_loaded)(plc4c_driver_handle driver_handle);
+typedef void (*plc4c_system_callback_on_driver_loaded)(struct plc4c_driver_t *driver);
 
 /**
  * Function pointer for a callback called when loading a driver fails.
  * Set in plc4c_system @see plc4c_system_set_on_driver_load_error
  * NOTE: driver_name could be a pointer to the configuration for the driver instead....
+ * @param driver_name 
+ * @param error_code
  */
-typedef void (*plc4c_system_callback_driver_load_error)(const char* driver_name, error_code error);
+typedef void (*plc4c_system_callback_driver_load_error)(const char *driver_name, error_code error);
 
 /**
  * Function pointer for a callback called when is successfully made
  * Set in plc4c_system @see plc4c_system_set_on_connection()
+ * @param connection
  */
-typedef void (*plc4c_system_callback_on_connection)(plc4c_connection_handle connection_handle);
+typedef void (*plc4c_system_callback_on_connection)(struct plc4c_connection_t *connection);
 
 /**
  * Function pointer for a callback called when connecting fails.
  * Set in plc4c_system @see plc4c_system_set_on_connection_error
+ * @param connection_string
+ * @param error_code
  */
-typedef void (*plc4c_system_callback_connection_error)(const char* connection_string, error_code error);
-
+typedef void (*plc4c_system_callback_connection_error)(const char *connection_string, error_code error);
 
 /**
  * Function pointer for a callback called when is successfully made
  * Set in plc4c_system @see plc4c_system_set_on_connection()
+ * @param connection
  */
-typedef void (*plc4c_system_callback_on_disconnection)(plc4c_connection_handle connection_handle);
+typedef void (*plc4c_system_callback_on_disconnection)(struct plc4c_connection_t *connection);
 
 /**
  * Function pointer for a callback called when connecting fails.
  * Set in plc4c_system @see plc4c_system_set_on_connection_error
+ * @param connection
+ * @param error_code
  */
-typedef void (*plc4c_system_callback_disconnection_error)(plc4c_connection_handle connection_handle, error_code error);
+typedef void (*plc4c_system_callback_disconnection_error)(struct plc4c_connection_t *connection, error_code error);
 
 /**
  * Function pointer for a callback called when a driver returns an error
+ * @param driver
+ * @param connection
+ * @param error_code
  */
-typedef void (*plc4c_system_callback_loop_error)(plc4c_driver_handle driver_handle, plc4c_connection_handle connection_handle, error_code error);
+typedef void(*plc4c_system_callback_loop_error)
+    (struct plc4c_driver_t *driver, struct plc4c_connection_t *connection, error_code error);
 
 /**
  * OTHER FUNCTION DEFS FOR SYSTEM
@@ -128,91 +136,102 @@ typedef void (*plc4c_system_callback_loop_error)(plc4c_driver_handle driver_hand
 
 /**
  * Function to create a plc4c_system
- * @param pointer to a plc4c_system_handle
+ * @param system 
  * @return NO_MEMORY if failed to create system
  */
-error_code plc4c_system_create(plc4c_system_handle *handle);
+error_code plc4c_system_create(struct plc4c_system_t **system);
 
 /**
  * Function to destroy a plc4c_system
  * This will also destroy all connections associated with the system
- * @param handle the plc4c_system_handle
+ * @param system 
  */
-void plc4c_system_destroy(plc4c_system_handle handle);
+void plc4c_system_destroy(struct plc4c_system_t *system);
 
 /**
  * Function to set the on_driver_loaded callback for the plc4c system
+ * @param system
  * @param callback plc4c_system_callback_on_driver
  */
-void plc4c_system_set_on_driver_loaded(plc4c_system_callback_on_driver_loaded callback);
+void plc4c_system_set_on_driver_loaded(struct plc4c_system_t *system, plc4c_system_callback_on_driver_loaded callback);
 
 /**
  * Function to set the error callback for loading drivers for the plc4c system
+ * @param system
  * @param callback plc4c_system_callback_driver_load_error
  */
-void plc4c_system_set_on_driver_load_error(plc4c_system_callback_driver_load_error callback);
+void plc4c_system_set_on_driver_load_error(struct plc4c_system_t *system,
+                                           plc4c_system_callback_driver_load_error callback);
 
 /**
  * Function to set the on_connection callback for the plc4c system
+ * @param system
  * @param callback plc4c_system_callback_on_connection
  */
-void plc4c_system_set_on_connection(plc4c_system_callback_on_connection callback);
+void plc4c_system_set_on_connection(struct plc4c_system_t *system, plc4c_system_callback_on_connection callback);
 
 /**
  * Function to set the error callback for making connections for the plc4c system
+ * @param system
  * @param callback plc4c_system_callback_connection_error
  */
-void plc4c_system_set_on_connection_error(plc4c_system_callback_connection_error callback);
+void plc4c_system_set_on_connection_error(struct plc4c_system_t *system,
+                                          plc4c_system_callback_connection_error callback);
 
 /**
  * Function to set the error callback loops
+ * @param system
  * @param callback plc4c_system_callback_loop_error
  */
-void plc4c_system_set_on_loop_error(plc4c_system_callback_loop_error callback);
-
+void plc4c_system_set_on_loop_error(struct plc4c_system_t *system, plc4c_system_callback_loop_error callback);
 
 /**
  * Function to initialize the PLC4C system (Initialize the driver manager and the list of enabled drivers)
+ * @param system
  * @return error_code
  */
-error_code plc4c_init(plc4c_system_handle);
+error_code plc4c_init(struct plc4c_system_t *system);
 
 /**
  * Function to set the on_disconnection callback for the plc4c system
+ * @param system
  * @param callback plc4c_system_callback_on_disconnection
  */
-void plc4c_system_set_on_disconnection(plc4c_system_callback_on_disconnection callback);
+void plc4c_system_set_on_disconnection(struct plc4c_system_t *system, plc4c_system_callback_on_disconnection callback);
 
 /**
  * Function to set the error callback for shutting down connections for the plc4c system
- * @param callback plc4c_system_callback_disconnection_error
+ * @param system
+ * @param callback 
  */
-void plc4c_system_set_on_disconnection_error(plc4c_system_callback_disconnection_error callback);
+void plc4c_system_set_on_disconnection_error(struct plc4c_system_t *system,
+                                             plc4c_system_callback_disconnection_error callback);
 
 /**
  * Function to clean up the PLC4C system (Free any still used resources, terminate live connections, ...)
+ * @param system
  */
-void plc4c_system_shutdown(plc4c_system_handle);
-
+void plc4c_system_shutdown(struct plc4c_system_t *system);
 
 /**
  * Function to initialize a connection to a PLC by parsing the given connection string
- * and setting the passed connection handle
+ * and setting the passed connection system
  *
- * @param plc4c_system_handle the system handle
- * @param connectionString PLC4X connection string
+ * @param system 
+ * @param connectionString 
  * @return error_code INVALID_CONNECTION_STRING, NO_MEMORY
  */
-error_code plc4c_system_connect(plc4c_system_handle system_handle, const char *connectionString, plc4c_connection_handle* connection_handle);
+error_code plc4c_system_connect(struct plc4c_system_t *system,
+                                const char *connectionString,
+                                struct plc4c_connection_t **connection);
 
 /**
  * Function to terminate a connection to a PLC.
  *
- * @param connection pointer to a plc4c_connection data structure.
- * @param plc4c_connection success handler function that gets called as soon as the connection is terminated.
- * @param errorFuncPtr error handler function that gets called if anything goes wrong.
+ * @param connection 
+ * @param plc4c_connection 
  */
-error_code plc4c_disconnect(plc4c_connection_handle connection_handle);
+error_code plc4c_disconnect(struct plc4c_connection_t *connection);
 
 /**
  * Function to give any drivers the chance to do their work.

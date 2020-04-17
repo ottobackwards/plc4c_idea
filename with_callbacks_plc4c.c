@@ -19,81 +19,81 @@
 #include <stdio.h>
 #include "plc4c.h"
 
-void default_on_driver_loaded(plc4c_driver_handle driver_handle);
+void default_on_driver_loaded(struct plc4c_driver_t *driver);
 
 void default_driver_load_error(const char* driver_name, error_code error);
 
-void default_on_connection(plc4c_connection_handle connection_handle);
+void default_on_connection(struct plc4c_connection_t *connection);
 
 void default_connection_error(const char* connection_string, error_code error);
 
-void default_on_disconnection(plc4c_connection_handle connection_handle);
+void default_on_disconnection(struct plc4c_connection_t *connection);
 
-void default_disconnection_error(plc4c_connection_handle connection_handle, error_code error);
+void default_disconnection_error(struct plc4c_connection_t *connection, error_code error);
 
-void default_loop_error(plc4c_driver_handle driver_handle, plc4c_connection_handle connection_handle, error_code error);
+void default_loop_error(struct plc4c_driver_t *driver, struct plc4c_connection_t *connection, error_code error);
 
 
 int main() {
   bool loop = true;
-  plc4c_system_handle system_handle = 0;
-  plc4c_connection_handle connection_handle = 0;
-  plc4c_connection_handle connection_handle2 = 0;
+  struct plc4c_system_t *system = NULL;
+  struct plc4c_connection_t *connection = NULL;
+  struct plc4c_connection_t *connection2 = NULL;
 
-  error_code error = plc4c_system_create(&system_handle);
+  error_code error = plc4c_system_create(&system);
   if (error != OK) {
     return -1;
   }
 
   /* setup our callbacks */
 
-  plc4c_system_set_on_driver_loaded(&default_on_driver_loaded);
-  plc4c_system_set_on_driver_load_error(&default_driver_load_error);
-  plc4c_system_set_on_connection(&default_on_connection);
-  plc4c_system_set_on_connection_error(&default_connection_error);
-  plc4c_system_set_on_loop_error(&default_connection_error);
+  plc4c_system_set_on_driver_loaded(system, &default_on_driver_loaded);
+  plc4c_system_set_on_driver_load_error(system, &default_driver_load_error);
+  plc4c_system_set_on_connection(system, &default_on_connection);
+  plc4c_system_set_on_connection_error(system, &default_connection_error);
+  plc4c_system_set_on_loop_error(system, &default_connection_error);
 
-  error = plc4c_init(system_handle);
+  error = plc4c_init(system);
   if (error != OK) {
     return -1;
   }
 
   // Establish a connection to remote devices
   // you may or may not care about the connection handle
-  error = plc4c_system_connect(system_handle,"s7://192.168.42.20", &connection_handle);
+  error = plc4c_system_connect(system,"s7://192.168.42.20", &connection);
   if (error != OK) {
     return -1;
   }
-  error = plc4c_system_connect(system_handle,"s7://192.168.42.22", &connection_handle2);
+  error = plc4c_system_connect(system,"s7://192.168.42.22", &connection2);
   if (error != OK) {
     return -1;
   }
 
   // Central program loop ...
   while(loop) {
-    if (plc4c_system_loop(system_handle) != OK ) {
+    if (plc4c_system_loop(system) != OK ) {
       break;
     }
   }
 
   // Make sure everything is cleaned up correctly.
-  plc4c_system_shutdown(system_handle);
-  plc4c_system_destroy(system_handle);
+  plc4c_system_shutdown(system);
+  plc4c_system_destroy(system);
 
   return 0;
 }
 
 
-void default_on_driver_loaded(plc4c_driver_handle driver_handle){}
+void default_on_driver_loaded(struct plc4c_driver_t *driver){}
 
 void default_driver_load_error(const char* driver_name, error_code error){}
 
-void default_on_connection(plc4c_connection_handle connection_handle){}
+void default_on_connection(struct plc4c_connection_t *connection){}
 
 void default_connection_error(const char* connection_string, error_code error){}
 
-void default_on_disconnection(plc4c_connection_handle connection_handle){}
+void default_on_disconnection(struct plc4c_connection_t *connection){}
 
-void default_disconnection_error(plc4c_connection_handle connection_handle, error_code error){}
+void default_disconnection_error(struct plc4c_connection_t *connection, error_code error){}
 
-void default_loop_error(plc4c_driver_handle driver_handle, plc4c_connection_handle connection_handle, error_code error){}
+void default_loop_error(struct plc4c_driver_t *driver, struct plc4c_connection_t *connection, error_code error){}

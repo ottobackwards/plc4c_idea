@@ -21,42 +21,42 @@
 
 int main() {
   bool loop = true;
-  plc4c_system_handle system_handle = 0;
-  plc4c_connection_handle connection_handle = 0;
-  plc4c_connection_handle connection_handle2 = 0;
+  struct plc4c_system_t *system = NULL;
+  struct plc4c_connection_t *connection = NULL;
+  struct plc4c_connection_t *connection2 = NULL;
 
-  error_code error = plc4c_system_create(&system_handle);
+  error_code error = plc4c_system_create(&system);
   if (error != OK) {
     return -1;
   }
 
-  error = plc4c_init(system_handle);
+  error = plc4c_init(system);
   if (error != OK) {
     return -1;
   }
 
   // Establish connections to remote devices
   // you may or may not care about the connection handle
-  error = plc4c_system_connect(system_handle,"s7://192.168.42.20", &connection_handle);
+  error = plc4c_system_connect(system, "s7://192.168.42.20", &connection);
   if (error != OK) {
     return -1;
   }
 
-  error = plc4c_system_connect(system_handle,"s7://192.168.42.22", &connection_handle2);
+  error = plc4c_system_connect(system, "s7://192.168.42.22", &connection2);
   if (error != OK) {
     return -1;
   }
 
   // Central program loop ...
   while(loop) {
-    if (plc4c_system_loop(system_handle) != OK ) {
+    if (plc4c_system_loop(system) != OK ) {
       break;
     }
   }
 
   // Make sure everything is cleaned up correctly.
-  plc4c_system_shutdown(system_handle);
-  plc4c_system_destroy(system_handle);
+  plc4c_system_shutdown(system);
+  plc4c_system_destroy(system);
 
   return 0;
 }
