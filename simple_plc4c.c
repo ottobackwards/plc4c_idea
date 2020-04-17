@@ -21,9 +21,9 @@
 
 int main() {
   bool loop = true;
-  struct plc4c_system_t *system = NULL;
-  struct plc4c_connection_t *connection = NULL;
-  struct plc4c_connection_t *connection2 = NULL;
+  plc4c_system *system = NULL;
+  plc4c_connection *connection = NULL;
+  plc4c_connection *connection2 = NULL;
 
   error_code error = plc4c_system_create(&system);
   if (error != OK) {
@@ -48,8 +48,8 @@ int main() {
   }
 
   // Central program loop ...
-  while(loop) {
-    if (plc4c_system_loop(system) != OK ) {
+  while (loop) {
+    if (plc4c_system_loop(system) != OK) {
       break;
     }
   }

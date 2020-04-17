@@ -19,26 +19,25 @@
 #include <stdio.h>
 #include "plc4c.h"
 
-void default_on_driver_loaded(struct plc4c_driver_t *driver);
+void default_on_driver_loaded(plc4c_driver *driver);
 
-void default_driver_load_error(const char* driver_name, error_code error);
+void default_driver_load_error(const char *driver_name, error_code error);
 
-void default_on_connection(struct plc4c_connection_t *connection);
+void default_on_connection(plc4c_connection *connection);
 
-void default_connection_error(const char* connection_string, error_code error);
+void default_connection_error(const char *connection_string, error_code error);
 
-void default_on_disconnection(struct plc4c_connection_t *connection);
+void default_on_disconnection(plc4c_connection *connection);
 
-void default_disconnection_error(struct plc4c_connection_t *connection, error_code error);
+void default_disconnection_error(plc4c_connection *connection, error_code error);
 
-void default_loop_error(struct plc4c_driver_t *driver, struct plc4c_connection_t *connection, error_code error);
-
+void default_loop_error(plc4c_driver *driver, plc4c_connection *connection, error_code error);
 
 int main() {
   bool loop = true;
-  struct plc4c_system_t *system = NULL;
-  struct plc4c_connection_t *connection = NULL;
-  struct plc4c_connection_t *connection2 = NULL;
+  plc4c_system *system = NULL;
+  plc4c_connection *connection = NULL;
+  plc4c_connection *connection2 = NULL;
 
   error_code error = plc4c_system_create(&system);
   if (error != OK) {
@@ -60,18 +59,18 @@ int main() {
 
   // Establish a connection to remote devices
   // you may or may not care about the connection handle
-  error = plc4c_system_connect(system,"s7://192.168.42.20", &connection);
+  error = plc4c_system_connect(system, "s7://192.168.42.20", &connection);
   if (error != OK) {
     return -1;
   }
-  error = plc4c_system_connect(system,"s7://192.168.42.22", &connection2);
+  error = plc4c_system_connect(system, "s7://192.168.42.22", &connection2);
   if (error != OK) {
     return -1;
   }
 
   // Central program loop ...
-  while(loop) {
-    if (plc4c_system_loop(system) != OK ) {
+  while (loop) {
+    if (plc4c_system_loop(system) != OK) {
       break;
     }
   }
@@ -83,17 +82,16 @@ int main() {
   return 0;
 }
 
+void default_on_driver_loaded(plc4c_driver *driver) {}
 
-void default_on_driver_loaded(struct plc4c_driver_t *driver){}
+void default_driver_load_error(const char *driver_name, error_code error) {}
 
-void default_driver_load_error(const char* driver_name, error_code error){}
+void default_on_connection(plc4c_connection *connection) {}
 
-void default_on_connection(struct plc4c_connection_t *connection){}
+void default_connection_error(const char *connection_string, error_code error) {}
 
-void default_connection_error(const char* connection_string, error_code error){}
+void default_on_disconnection(plc4c_connection *connection) {}
 
-void default_on_disconnection(struct plc4c_connection_t *connection){}
+void default_disconnection_error(plc4c_connection *connection, error_code error) {}
 
-void default_disconnection_error(struct plc4c_connection_t *connection, error_code error){}
-
-void default_loop_error(struct plc4c_driver_t *driver, struct plc4c_connection_t *connection, error_code error){}
+void default_loop_error(plc4c_driver *driver, plc4c_connection *connection, error_code error) {}
