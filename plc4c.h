@@ -49,7 +49,7 @@ typedef enum error_code {
  * @param err error code.
  * @return A human readable error description.
  */
-char *toErrorMessage(error_code err);
+char *plc4c_error_code_to_error_message(error_code err);
 
 /**
  * the plc4c system
